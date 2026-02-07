@@ -1,0 +1,82 @@
+import Image from 'next/image';
+import { items } from '@/lib/data';
+import type { Item } from '@/lib/types';
+import { notFound } from 'next/navigation';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { MapPin, Clock, Tag, Search, Edit, Trash2 } from 'lucide-react';
+import { format } from 'date-fns';
+import { Button } from '@/components/ui/button';
+
+export default function LostItemDetailsPage({ params }: { params: { id: string } }) {
+  const item: Item | undefined = items.find(i => i.id === params.id && i.type === 'lost');
+  
+  if (!item) {
+    notFound();
+  }
+
+  // In a real app, you'd check if the current user owns this report.
+  // const { user } = useAuth();
+  // const isOwner = user?.id === item.reportedBy;
+
+  return (
+    <div className="max-w-4xl mx-auto space-y-6">
+      <Card>
+        <CardHeader>
+          <div className="flex justify-between items-start">
+            <div>
+              <CardTitle className="text-3xl font-bold">{item.name}</CardTitle>
+              <CardDescription>
+                Details about your lost item report.
+              </CardDescription>
+            </div>
+            <Badge variant={item.status === 'open' ? 'destructive' : 'default'} className="capitalize text-base">{item.status}</Badge>
+          </div>
+        </CardHeader>
+        <CardContent className="grid md:grid-cols-2 gap-6">
+          <div className="space-y-4">
+            <div className="relative aspect-video w-full rounded-lg overflow-hidden">
+              <Image
+                src={item.imageUrl}
+                alt={item.description}
+                data-ai-hint={item.imageHint}
+                fill
+                className="object-cover"
+              />
+            </div>
+             <div className="border-t pt-4">
+                 <h3 className="font-semibold text-lg mb-2">Find Matches</h3>
+                 <p className="text-muted-foreground text-sm mb-4">Use our AI-powered search to find items that match your description from the found items list.</p>
+                <Button><Search className="mr-2" /> Find similar items</Button>
+            </div>
+          </div>
+          <div className="space-y-4">
+            <div>
+              <h3 className="font-semibold text-lg mb-2">Item Details</h3>
+              <p className="text-muted-foreground">{item.description}</p>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
+                <div className="flex items-center gap-2">
+                    <Tag className="h-4 w-4 text-muted-foreground" />
+                    <span>Category: <Badge variant="secondary">{item.itemType}</Badge></span>
+                </div>
+                <div className="flex items-center gap-2">
+                    <MapPin className="h-4 w-4 text-muted-foreground" />
+                    <span>Last seen at: {item.location}</span>
+                </div>
+                <div className="flex items-center gap-2 col-span-full">
+                    <Clock className="h-4 w-4 text-muted-foreground" />
+                    <span>Reported on: {format(new Date(item.reportedAt), 'PPP')}</span>
+                </div>
+            </div>
+          </div>
+        </CardContent>
+        {/* We'd only show this if the current user is the owner of the report */}
+        <CardFooter className="flex justify-end gap-2 border-t pt-6">
+            <Button variant="outline"><Edit className="mr-2" /> Edit Report</Button>
+            <Button variant="destructive"><Trash2 className="mr-2" /> Delete Report</Button>
+        </CardFooter>
+      </Card>
+    </div>
+  );
+}
