@@ -98,27 +98,6 @@ export const items: Item[] = [
   },
 ];
 
-export const claims: Claim[] = [
-    {
-        id: 'claim-1',
-        foundItemId: 'item-5',
-        claimantId: 'user-1',
-        status: 'approved',
-        claimDate: '2024-07-29T13:00:00Z',
-        claimantDescription: 'This is my MacBook Pro. The background is a picture of a golden retriever. Serial number is XXXXXX.',
-        verificationDetails: 'The user provided the laptop\'s serial number, which matched the device found. The wallpaper description also matched.',
-    },
-    {
-        id: 'claim-2',
-        foundItemId: 'item-1', // Blue Hydro Flask
-        claimantId: 'user-1', // Alex Johnson
-        status: 'pending',
-        claimDate: '2024-07-30T10:00:00Z',
-        claimantDescription: 'I think this is my blue hydro flask. It has a sticker of a mountain on the bottom. I lost it near the library yesterday.',
-        claimantPhotoUrl: getImage('claimant-photo-1').imageUrl,
-        claimantPhotoHint: getImage('claimant-photo-1').imageHint,
-        verificationDetails: 'AI Analysis: High similarity. Both images show a blue Hydro Flask. The user mentions a sticker which is not visible in the found item photo. Recommend manual verification of the sticker.',
-    }
-];
+export const claims: Claim[] = [];
 
 export const notifications: Notification[] = [];

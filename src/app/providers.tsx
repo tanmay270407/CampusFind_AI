@@ -76,9 +76,9 @@ export function AppProviders({ children }: { children: React.ReactNode }) {
   const logout = () => {
     setUser(null);
     localStorage.removeItem('campusfind-user');
-    localStorage.removeItem('campusfind-items');
-    localStorage.removeItem('campusfind-notifications');
-    localStorage.removeItem('campusfind-claims');
+    localStorage.removeItem('campusfind-items-v2');
+    localStorage.removeItem('campusfind-notifications-v2');
+    localStorage.removeItem('campusfind-claims-v2');
   };
 
   const updateUser = useCallback((data: Partial<Pick<User, 'name' | 'avatarUrl' | 'avatarHint'>>) => {
@@ -104,17 +104,17 @@ export function AppProviders({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     if(!isLoading && user) {
         try {
-          const storedItems = localStorage.getItem('campusfind-items');
+          const storedItems = localStorage.getItem('campusfind-items-v2');
           if (storedItems) {
             setItems(JSON.parse(storedItems));
           } else {
-            localStorage.setItem('campusfind-items', JSON.stringify(initialItems));
+            localStorage.setItem('campusfind-items-v2', JSON.stringify(initialItems));
             setItems(initialItems);
           }
         } catch (error) {
           console.error('Failed to parse items from localStorage', error);
           setItems(initialItems);
-          localStorage.setItem('campusfind-items', JSON.stringify(initialItems));
+          localStorage.setItem('campusfind-items-v2', JSON.stringify(initialItems));
         }
     } else if(!isLoading && !user) {
         setItems(initialItems);
@@ -123,7 +123,7 @@ export function AppProviders({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
       if(!isLoading && user) {
-        localStorage.setItem('campusfind-items', JSON.stringify(items));
+        localStorage.setItem('campusfind-items-v2', JSON.stringify(items));
       }
   }, [items, isLoading, user]);
   
@@ -133,29 +133,29 @@ export function AppProviders({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     if(!isLoading && user) {
         try {
-          const storedNotifications = localStorage.getItem('campusfind-notifications');
+          const storedNotifications = localStorage.getItem('campusfind-notifications-v2');
           if (storedNotifications) {
             setNotifications(JSON.parse(storedNotifications));
           } else {
             const userNotifications = initialNotifications.filter(n => n.userId === user.id);
-            localStorage.setItem('campusfind-notifications', JSON.stringify(userNotifications));
+            localStorage.setItem('campusfind-notifications-v2', JSON.stringify(userNotifications));
             setNotifications(userNotifications);
           }
         } catch (error) {
           console.error('Failed to parse notifications from localStorage', error);
           const userNotifications = initialNotifications.filter(n => n.userId === user.id);
           setNotifications(userNotifications);
-          localStorage.setItem('campusfind-notifications', JSON.stringify(userNotifications));
+          localStorage.setItem('campusfind-notifications-v2', JSON.stringify(userNotifications));
         }
     } else if (!isLoading && !user) {
         setNotifications([]);
-        localStorage.removeItem('campusfind-notifications');
+        localStorage.removeItem('campusfind-notifications-v2');
     }
   }, [isLoading, user]);
 
   useEffect(() => {
       if(!isLoading && user) {
-        localStorage.setItem('campusfind-notifications', JSON.stringify(notifications));
+        localStorage.setItem('campusfind-notifications-v2', JSON.stringify(notifications));
       }
   }, [notifications, isLoading, user]);
 
@@ -248,17 +248,17 @@ export function AppProviders({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     if (!isLoading && user) {
       try {
-        const storedClaims = localStorage.getItem('campusfind-claims');
+        const storedClaims = localStorage.getItem('campusfind-claims-v2');
         if (storedClaims) {
           setClaims(JSON.parse(storedClaims));
         } else {
-          localStorage.setItem('campusfind-claims', JSON.stringify(initialClaims));
+          localStorage.setItem('campusfind-claims-v2', JSON.stringify(initialClaims));
           setClaims(initialClaims);
         }
       } catch (error) {
         console.error('Failed to parse claims from localStorage', error);
         setClaims(initialClaims);
-        localStorage.setItem('campusfind-claims', JSON.stringify(initialClaims));
+        localStorage.setItem('campusfind-claims-v2', JSON.stringify(initialClaims));
       }
     } else if (!isLoading && !user) {
       setClaims(initialClaims);
@@ -267,7 +267,7 @@ export function AppProviders({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     if (!isLoading && user) {
-      localStorage.setItem('campusfind-claims', JSON.stringify(claims));
+      localStorage.setItem('campusfind-claims-v2', JSON.stringify(claims));
     }
   }, [claims, isLoading, user]);
 
