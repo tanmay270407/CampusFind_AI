@@ -36,6 +36,19 @@ type ClaimItemFormProps = {
   foundItem: Item;
 };
 
+// Helper function to convert image URL to data URI
+const urlToDataUri = async (url: string): Promise<string> => {
+    const response = await fetch(url);
+    const blob = await response.blob();
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onloadend = () => resolve(reader.result as string);
+        reader.onerror = reject;
+        reader.readAsDataURL(blob);
+    });
+};
+
+
 export function ClaimItemForm({ foundItem }: ClaimItemFormProps) {
   const { toast } = useToast();
   const router = useRouter();
@@ -85,19 +98,25 @@ export function ClaimItemForm({ foundItem }: ClaimItemFormProps) {
 
     let verificationDetails = "AI verification could not be run for this claim.";
     try {
+        // Convert found item image to data URI
+        const foundItemPhotoDataUri = await urlToDataUri(foundItem.imageUrl);
+
         const aiResponse = await generateItemDetailsForClaim({
             lostItemDescription: values.description,
-            lostItemPhotoDataUri: preview || '', // AI flow expects a string, even if empty
+            lostItemPhotoDataUri: preview || undefined, // Pass undefined if no photo
             foundItemDescription: foundItem.description,
-            foundItemPhotoDataUri: foundItem.imageUrl,
+            foundItemPhotoDataUri: foundItemPhotoDataUri,
         });
-        verificationDetails = aiResponse.itemDetails;
+
+        const scorePercentage = (aiResponse.confidenceScore * 100).toFixed(0);
+        verificationDetails = `**AI Confidence Score: ${scorePercentage}%**\n\n**Reasoning:**\n${aiResponse.reasoning}`;
+
     } catch (error) {
         console.error("AI Flow failed:", error);
         toast({
             variant: "destructive",
             title: "AI Verification Failed",
-            description: "We couldn't process the AI verification at this time, but your claim will still be submitted.",
+            description: "We couldn't process the AI verification at this time, but your claim will still be submitted for manual review.",
         });
     }
 

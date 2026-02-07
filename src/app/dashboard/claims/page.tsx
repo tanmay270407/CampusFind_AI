@@ -89,7 +89,7 @@ function ClaimReviewCard({ claim, approveClaim, rejectClaim }: { claim: Claim, a
                 {claim.verificationDetails && (
                     <div className="border-t pt-4">
                         <h4 className="font-semibold mb-2">AI Verification Analysis</h4>
-                        <p className="text-sm text-muted-foreground">{claim.verificationDetails}</p>
+                        <div className="text-sm text-muted-foreground whitespace-pre-wrap">{claim.verificationDetails}</div>
                     </div>
                 )}
             </CardContent>

@@ -16,8 +16,9 @@ const GenerateItemDetailsForClaimInputSchema = z.object({
     .describe('The description of the lost item provided by the user.'),
   lostItemPhotoDataUri: z
     .string()
+    .optional()
     .describe(
-      "A photo of the lost item, as a data URI that must include a MIME type and use Base64 encoding. Expected format: 'data:<mimetype>;base64,<encoded_data>'."
+      "A photo of the lost item, as a data URI that must include a MIME type and use Base64 encoding. Expected format: 'data:<mimetype>;base64,<encoded_data>'. This is optional."
     ),
   foundItemDescription: z
     .string()
@@ -34,10 +35,17 @@ export type GenerateItemDetailsForClaimInput = z.infer<
 >;
 
 const GenerateItemDetailsForClaimOutputSchema = z.object({
-  itemDetails: z
+  confidenceScore: z
+    .number()
+    .min(0)
+    .max(1)
+    .describe(
+      'A score from 0.0 to 1.0 indicating the confidence that the claimant is the true owner. 1.0 is a certain match, 0.0 is a certain mismatch.'
+    ),
+  reasoning: z
     .string()
     .describe(
-      'A detailed description of the lost and found items, highlighting similarities and differences to assist in claim verification.'
+      'A detailed analysis comparing the lost and found items. Explain your reasoning for the confidence score by highlighting similarities and discrepancies in features like color, brand, unique markings, and contents.'
     ),
 });
 
@@ -55,15 +63,26 @@ const prompt = ai.definePrompt({
   name: 'generateItemDetailsForClaimPrompt',
   input: {schema: GenerateItemDetailsForClaimInputSchema},
   output: {schema: GenerateItemDetailsForClaimOutputSchema},
-  prompt: `You are an AI assistant helping to verify claims for lost and found items.
-  Based on the descriptions and photos of both the lost and found items, generate a detailed description highlighting key similarities and differences that would help an admin verify the claim.
+  prompt: `You are a security expert specializing in verifying ownership of lost and found items. Your task is to analyze the details provided by the claimant and compare them against the item found by staff.
 
-  Lost Item Description: {{{lostItemDescription}}}
-  Lost Item Photo: {{media url=lostItemPhotoDataUri}}
+Carefully examine both descriptions and, if available, both photos. Pay close attention to:
+- **Color, Brand, Model:** Are they an exact match?
+- **Unique Markings:** Does the claimant mention any scratches, dents, stickers, or other unique identifiers? Are these visible on the found item?
+- **Contents (for bags/containers):** Does the claimant accurately describe items that were inside?
+- **Uniqueness of Description:** Did the claimant provide specific details that only the true owner would know?
 
-  Found Item Description: {{{foundItemDescription}}}
-  Found Item Photo: {{media url=foundItemPhotoDataUri}}
-  `,
+Based on your analysis, provide a confidence score and a detailed reasoning.
+
+**Found Item Details:**
+- Description: {{{foundItemDescription}}}
+- Photo: {{media url=foundItemPhotoDataUri}}
+
+**Claimant's Details:**
+- Description: {{{lostItemDescription}}}
+{{#if lostItemPhotoDataUri}}
+- Photo: {{media url=lostItemPhotoDataUri}}
+{{/if}}
+`,
 });
 
 const generateItemDetailsForClaimFlow = ai.defineFlow(
