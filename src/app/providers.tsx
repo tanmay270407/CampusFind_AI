@@ -1,8 +1,8 @@
 'use client';
 
-import type { User, Item } from '@/lib/types';
+import type { User, Item, Notification } from '@/lib/types';
 import React, { createContext, useState, useMemo, useEffect, useCallback } from 'react';
-import { users, items as initialItems } from '@/lib/data';
+import { users, items as initialItems, notifications as initialNotifications } from '@/lib/data';
 
 // --- Auth Context ---
 export interface AuthContextType {
@@ -12,9 +12,7 @@ export interface AuthContextType {
   isLoading: boolean;
   updateUser: (data: Partial<Pick<User, 'name' | 'avatarUrl' | 'avatarHint'>>) => void;
 }
-
 export const AuthContext = createContext<AuthContextType | null>(null);
-
 
 // --- Items Context ---
 export interface ItemsContextType {
@@ -24,8 +22,17 @@ export interface ItemsContextType {
     deleteItem: (itemId: string) => void;
     getItem: (id: string) => Item | undefined;
 }
-
 export const ItemsContext = createContext<ItemsContextType | null>(null);
+
+// --- Notifications Context ---
+export interface NotificationsContextType {
+  notifications: Notification[];
+  addNotification: (notification: Omit<Notification, 'id' | 'createdAt' | 'read'>) => void;
+  markAsRead: (id: string) => void;
+  markAllAsRead: () => void;
+  unreadCount: number;
+}
+export const NotificationsContext = createContext<NotificationsContextType | null>(null);
 
 
 export function AppProviders({ children }: { children: React.ReactNode }) {
@@ -59,7 +66,8 @@ export function AppProviders({ children }: { children: React.ReactNode }) {
   const logout = () => {
     setUser(null);
     localStorage.removeItem('campusfind-user');
-    localStorage.removeItem('campusfind-items'); // Clear items on logout
+    localStorage.removeItem('campusfind-items');
+    localStorage.removeItem('campusfind-notifications');
   };
 
   const updateUser = useCallback((data: Partial<Pick<User, 'name' | 'avatarUrl' | 'avatarHint'>>) => {
@@ -80,33 +88,28 @@ export function AppProviders({ children }: { children: React.ReactNode }) {
   }), [user, isLoading, updateUser]);
 
   // --- Items State ---
-  const [items, setItems] = useState<Item[]>(initialItems);
+  const [items, setItems] = useState<Item[]>([]);
 
   useEffect(() => {
-    // On mount, check local storage for items
     if(!isLoading && user) {
         try {
           const storedItems = localStorage.getItem('campusfind-items');
           if (storedItems) {
             setItems(JSON.parse(storedItems));
           } else {
-            // If nothing in local storage, use initial data and set it.
             localStorage.setItem('campusfind-items', JSON.stringify(initialItems));
             setItems(initialItems);
           }
         } catch (error) {
           console.error('Failed to parse items from localStorage', error);
-          // Fallback to initial data if parsing fails
           setItems(initialItems);
           localStorage.setItem('campusfind-items', JSON.stringify(initialItems));
         }
     } else if(!isLoading && !user) {
-        // If logged out, reset to initial data
         setItems(initialItems);
     }
   }, [isLoading, user]);
 
-  // Persist items to local storage whenever they change
   useEffect(() => {
       if(!isLoading && user) {
         localStorage.setItem('campusfind-items', JSON.stringify(items));
@@ -144,10 +147,74 @@ export function AppProviders({ children }: { children: React.ReactNode }) {
       getItem,
   }), [items, addItem, updateItem, deleteItem, getItem]);
 
+
+  // --- Notifications State ---
+  const [notifications, setNotifications] = useState<Notification[]>([]);
+  
+  useEffect(() => {
+    if(!isLoading && user) {
+        try {
+          const storedNotifications = localStorage.getItem('campusfind-notifications');
+          if (storedNotifications) {
+            setNotifications(JSON.parse(storedNotifications));
+          } else {
+            const userNotifications = initialNotifications.filter(n => n.userId === user.id);
+            localStorage.setItem('campusfind-notifications', JSON.stringify(userNotifications));
+            setNotifications(userNotifications);
+          }
+        } catch (error) {
+          console.error('Failed to parse notifications from localStorage', error);
+          const userNotifications = initialNotifications.filter(n => n.userId === user.id);
+          setNotifications(userNotifications);
+          localStorage.setItem('campusfind-notifications', JSON.stringify(userNotifications));
+        }
+    } else if (!isLoading && !user) {
+        setNotifications([]);
+        localStorage.removeItem('campusfind-notifications');
+    }
+  }, [isLoading, user]);
+
+  useEffect(() => {
+      if(!isLoading && user) {
+        localStorage.setItem('campusfind-notifications', JSON.stringify(notifications));
+      }
+  }, [notifications, isLoading, user]);
+
+  const addNotification = useCallback((notificationData: Omit<Notification, 'id' | 'createdAt' | 'read'>) => {
+    const newNotification: Notification = {
+      ...notificationData,
+      id: `notif-${Date.now()}`,
+      createdAt: new Date().toISOString(),
+      read: false,
+    };
+    setNotifications(prev => [newNotification, ...prev]);
+  }, []);
+
+  const markAsRead = useCallback((id: string) => {
+    setNotifications(prev => prev.map(n => n.id === id ? { ...n, read: true } : n));
+  }, []);
+
+  const markAllAsRead = useCallback(() => {
+    setNotifications(prev => prev.map(n => ({ ...n, read: true })));
+  }, []);
+
+  const unreadCount = useMemo(() => notifications.filter(n => !n.read).length, [notifications]);
+
+  const notificationsContextValue = useMemo(() => ({
+    notifications,
+    addNotification,
+    markAsRead,
+    markAllAsRead,
+    unreadCount,
+  }), [notifications, addNotification, markAsRead, markAllAsRead, unreadCount]);
+
+
   return (
     <AuthContext.Provider value={authContextValue}>
       <ItemsContext.Provider value={itemsContextValue}>
-        {!isLoading && children}
+        <NotificationsContext.Provider value={notificationsContextValue}>
+            {children}
+        </NotificationsContext.Provider>
       </ItemsContext.Provider>
     </AuthContext.Provider>
   );

@@ -75,7 +75,11 @@ export default function LostItemDetailsPage({ params }: { params: { id: string }
              <div className="border-t pt-4">
                  <h3 className="font-semibold text-lg mb-2">Find Matches</h3>
                  <p className="text-muted-foreground text-sm mb-4">Use our AI-powered search to find items that match your description from the found items list.</p>
-                <Button><Search className="mr-2" /> Find similar items</Button>
+                <Button asChild>
+                  <Link href={`/dashboard/lost/${item.id}/matches`}>
+                    <Search className="mr-2" /> Find similar items
+                  </Link>
+                </Button>
             </div>
           </div>
           <div className="space-y-4">

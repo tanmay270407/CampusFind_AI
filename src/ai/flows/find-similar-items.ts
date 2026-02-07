@@ -10,6 +10,7 @@
 
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
+import { items } from '@/lib/data';
 
 const FindSimilarItemsInputSchema = z.object({
   photoDataUri: z
@@ -57,8 +58,25 @@ const findSimilarItemsFlow = ai.defineFlow(
     inputSchema: FindSimilarItemsInputSchema,
     outputSchema: FindSimilarItemsOutputSchema,
   },
-  async input => {
-    const {output} = await findSimilarItemsPrompt(input);
-    return output!;
+  async (input): Promise<FindSimilarItemsOutput> => {
+    // This is a mock implementation for demo purposes.
+    // In a real application, the AI would perform a vector search based on the input image and description.
+    
+    // Simulate a delay to mimic AI processing time.
+    await new Promise(resolve => setTimeout(resolve, 1500));
+
+    const foundItems = items.filter(i => i.type === 'found' && i.status === 'open');
+
+    // For this demo, we'll just return a couple of found items with a mock similarity score.
+    // A real implementation would use the AI's analysis of the input to determine similarity.
+    const mockResults: FindSimilarItemsOutput = foundItems.slice(0, 3).map((item, index) => ({
+      itemId: item.id,
+      similarityScore: parseFloat((0.92 - index * 0.15).toFixed(2)),
+      imageUrl: item.imageUrl,
+      itemDescription: item.description,
+      locationFound: item.location,
+    })).filter(item => item.similarityScore > 0);
+
+    return mockResults;
   }
 );
