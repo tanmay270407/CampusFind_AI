@@ -1,12 +1,13 @@
 'use client';
 import { useItems } from '@/hooks/use-items';
 import type { Item } from '@/lib/types';
-import { notFound } from 'next/navigation';
+import { notFound, useParams } from 'next/navigation';
 import Image from 'next/image';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { ClaimItemForm } from '@/components/dashboard/claim-item-form';
 
-export default function ClaimItemPage({ params }: { params: { id: string } }) {
+export default function ClaimItemPage() {
+  const params = useParams<{ id: string }>();
   const { getItem } = useItems();
   const item: Item | undefined = getItem(params.id);
 

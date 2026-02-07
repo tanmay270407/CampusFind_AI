@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { notFound } from 'next/navigation';
+import { notFound, useParams } from 'next/navigation';
 import { useItems } from '@/hooks/use-items';
 import { useAuth } from '@/hooks/use-auth';
 import { useNotifications } from '@/hooks/use-notifications';
@@ -47,7 +47,8 @@ function MatchCard({ match }: { match: FindSimilarItemsOutput[0] }) {
 }
 
 
-export default function FindMatchesPage({ params }: { params: { id: string } }) {
+export default function FindMatchesPage() {
+  const params = useParams<{ id: string }>();
   const { getItem, items } = useItems();
   const { user } = useAuth();
   const { addNotification } = useNotifications();

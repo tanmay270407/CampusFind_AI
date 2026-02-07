@@ -3,7 +3,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import type { Item } from '@/lib/types';
-import { notFound, useRouter } from 'next/navigation';
+import { notFound, useRouter, useParams } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { MapPin, Clock, Tag, Search, Edit, Trash2 } from 'lucide-react';
@@ -24,7 +24,8 @@ import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/use-auth';
 import { useItems } from '@/hooks/use-items';
 
-export default function LostItemDetailsPage({ params }: { params: { id: string } }) {
+export default function LostItemDetailsPage() {
+  const params = useParams<{ id: string }>();
   const { toast } = useToast();
   const router = useRouter();
   const { user } = useAuth();

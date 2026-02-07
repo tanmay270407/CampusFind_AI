@@ -2,9 +2,10 @@
 import { ReportItemForm } from '@/components/dashboard/report-item-form';
 import { useItems } from '@/hooks/use-items';
 import type { Item } from '@/lib/types';
-import { notFound } from 'next/navigation';
+import { notFound, useParams } from 'next/navigation';
 
-export default function EditLostItemPage({ params }: { params: { id: string } }) {
+export default function EditLostItemPage() {
+    const params = useParams<{ id: string }>();
     const { getItem } = useItems();
     const item: Item | undefined = getItem(params.id);
 

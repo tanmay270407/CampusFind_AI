@@ -3,7 +3,7 @@
 import Image from 'next/image';
 import { users } from '@/lib/data';
 import type { Item, User } from '@/lib/types';
-import { notFound } from 'next/navigation';
+import { notFound, useParams } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -12,7 +12,8 @@ import { format } from 'date-fns';
 import Link from 'next/link';
 import { useItems } from '@/hooks/use-items';
 
-export default function FoundItemDetailsPage({ params }: { params: { id: string } }) {
+export default function FoundItemDetailsPage() {
+  const params = useParams<{ id: string }>();
   const { getItem } = useItems();
   const item: Item | undefined = getItem(params.id);
   
