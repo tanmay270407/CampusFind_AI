@@ -7,6 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { MapPin, Clock, User as UserIcon, Tag } from 'lucide-react';
 import { format } from 'date-fns';
+import Link from 'next/link';
 
 export default function FoundItemDetailsPage({ params }: { params: { id: string } }) {
   const item: Item | undefined = items.find(i => i.id === params.id && i.type === 'found');
@@ -73,7 +74,9 @@ export default function FoundItemDetailsPage({ params }: { params: { id: string 
                 <div className="border-t pt-4">
                     <h3 className="font-semibold text-lg mb-2">Think this is yours?</h3>
                     <p className="text-muted-foreground text-sm mb-4">If you believe this is your lost item, you can submit a claim. Please be prepared to provide details to verify your ownership.</p>
-                    <Button>Claim this Item</Button>
+                    <Button asChild>
+                        <Link href={`/dashboard/claim/${item.id}`}>Claim this Item</Link>
+                    </Button>
                 </div>
              )}
           </div>
