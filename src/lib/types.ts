@@ -23,12 +23,15 @@ export type Item = {
 
 export type Claim = {
   id: string;
-  lostItemId: string;
+  lostItemId?: string;
   foundItemId: string;
   claimantId: string; // User ID
   status: 'pending' | 'approved' | 'rejected';
   claimDate: string; // Using string for simplicity
   verificationDetails?: string; // AI generated details
+  claimantDescription: string;
+  claimantPhotoUrl?: string;
+  claimantPhotoHint?: string;
 };
 
 export type Notification = {
