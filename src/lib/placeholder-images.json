@@ -1,3 +1,70 @@
 {
-  "placeholderImages": []
+  "placeholderImages": [
+    {
+      "id": "logo",
+      "description": "CampusFind AI logo",
+      "imageUrl": "https://images.unsplash.com/photo-1738464024478-2a60ac914513?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxsb2dvJTIwbWFnbmlmeWluZyUyMGdsYXNzfGVufDB8fHx8MTc3MDQ0NDQ2NXww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "logo magnifying glass"
+    },
+    {
+      "id": "water-bottle-1",
+      "description": "A blue water bottle",
+      "imageUrl": "https://images.unsplash.com/photo-1561041695-d2fadf9f318c?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw1fHx3YXRlciUyMGJvdHRsZXxlbnwwfHx8fDE3NzAzNTUwNzF8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "water bottle"
+    },
+    {
+      "id": "id-card-1",
+      "description": "A university ID card",
+      "imageUrl": "https://images.unsplash.com/photo-1614267119077-51bdcbf9f77a?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw4fHxJRCUyMGNhcmR8ZW58MHx8fHwxNzcwMzU0NDQ1fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "ID card"
+    },
+    {
+      "id": "backpack-1",
+      "description": "A black backpack",
+      "imageUrl": "https://images.unsplash.com/photo-1649813556988-f8a919be9114?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw0fHxibGFjayUyMGJhY2twYWNrfGVufDB8fHx8MTc3MDQ0NDQ2NHww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "black backpack"
+    },
+    {
+      "id": "book-1",
+      "description": "A hardcover textbook",
+      "imageUrl": "https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw5fHxib29rfGVufDB8fHx8MTc3MDQyMjUwN3ww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "book"
+    },
+    {
+      "id": "laptop-1",
+      "description": "A silver laptop",
+      "imageUrl": "https://images.unsplash.com/photo-1496181133206-80ce9b88a853?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHxsYXB0b3B8ZW58MHx8fHwxNzcwMzYxMzM2fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "laptop"
+    },
+    {
+      "id": "headphones-1",
+      "description": "A pair of black headphones",
+      "imageUrl": "https://images.unsplash.com/photo-1618366712010-f4ae9c647dcb?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHxoZWFkcGhvbmVzfGVufDB8fHx8MTc3MDM0ODI3MHww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "headphones"
+    },
+    {
+      "id": "keys-1",
+      "description": "A set of keys on a keychain",
+      "imageUrl": "https://images.unsplash.com/photo-1677951570313-b0750351c461?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxMHx8a2V5c3xlbnwwfHx8fDE3NzAzNzY2ODB8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "keys"
+    },
+    {
+      "id": "user-avatar-1",
+      "description": "User avatar",
+      "imageUrl": "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw2fHxwZXJzb24lMjBwb3J0cmFpdHxlbnwwfHx8fDE3NzAzMzYzNzl8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "person portrait"
+    },
+    {
+      "id": "user-avatar-2",
+      "description": "User avatar",
+      "imageUrl": "https://images.unsplash.com/photo-1590086782792-42dd2350140d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw0fHxwZXJzb24lMjBwb3J0cmFpdHxlbnwwfHx8fDE3NzAzMzYzNzl8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "person portrait"
+    },
+    {
+      "id": "user-avatar-3",
+      "description": "User avatar",
+      "imageUrl": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw3fHxwZXJzb24lMjBwb3J0cmFpdHxlbnwwfHx8fDE3NzAzMzYzNzl8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "person portrait"
+    }
+  ]
 }
