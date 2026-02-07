@@ -28,33 +28,38 @@ import { Loader2, UploadCloud, X } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { Card, CardContent } from '@/components/ui/card';
-
-const formSchema = z.object({
-  name: z.string().min(1, { message: 'Item name is required.' }),
-  description: z.string().min(1, { message: 'Description is required.' }),
-  location: z.string().min(1, { message: 'Location is required.' }),
-  itemType: z.enum(['Water Bottle', 'ID Card', 'Bag', 'Book', 'Gadget', 'Other']),
-  photo: z.any().refine((files) => files?.length === 1, 'Photo is required.'),
-});
+import type { Item } from '@/lib/types';
 
 type ReportItemFormProps = {
   itemType: 'lost' | 'found';
+  item?: Item;
 };
 
-export function ReportItemForm({ itemType }: ReportItemFormProps) {
+export function ReportItemForm({ itemType, item }: ReportItemFormProps) {
   const { toast } = useToast();
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
-  const [preview, setPreview] = useState<string | null>(null);
+  const [preview, setPreview] = useState<string | null>(item?.imageUrl || null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const formSchema = z.object({
+    name: z.string().min(1, { message: 'Item name is required.' }),
+    description: z.string().min(1, { message: 'Description is required.' }),
+    location: z.string().min(1, { message: 'Location is required.' }),
+    itemType: z.enum(['Water Bottle', 'ID Card', 'Bag', 'Book', 'Gadget', 'Other']),
+    photo: z.any().refine((files) => item || (files && files.length > 0), {
+        message: 'Photo is required.',
+    }),
+  });
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      name: '',
-      description: '',
-      location: '',
-      itemType: 'Other',
+      name: item?.name || '',
+      description: item?.description || '',
+      location: item?.location || '',
+      itemType: item?.itemType || 'Other',
+      photo: undefined,
     },
   });
 
@@ -72,7 +77,7 @@ export function ReportItemForm({ itemType }: ReportItemFormProps) {
 
   const handleRemoveImage = () => {
     setPreview(null);
-    form.resetField('photo');
+    form.setValue('photo', null); 
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
     }
@@ -80,16 +85,17 @@ export function ReportItemForm({ itemType }: ReportItemFormProps) {
 
   function onSubmit(values: z.infer<typeof formSchema>) {
     setIsLoading(true);
-    console.log({ ...values, type: itemType });
-    // Simulate API call to report item
+    console.log({ ...values, type: itemType, id: item?.id });
+    // Simulate API call to report/update item
     setTimeout(() => {
       setIsLoading(false);
       toast({
-        title: `Item Reported as ${itemType}`,
-        description: "Thank you! Your report has been submitted.",
+        title: item ? 'Report Updated' : `Item Reported as ${itemType}`,
+        description: item ? 'Your report has been successfully updated.' : "Thank you! Your report has been submitted.",
       });
-      // In a real app, you'd get the new item ID and redirect
-      router.push('/dashboard/my-items');
+      // Redirect to the item details page if editing, otherwise to my-items page
+      router.push(item ? `/dashboard/${itemType}/${item.id}` : '/dashboard/my-items');
+      router.refresh(); // Refresh to show new/updated data
     }, 1500);
   }
 
@@ -223,7 +229,7 @@ export function ReportItemForm({ itemType }: ReportItemFormProps) {
               {isLoading ? (
                 <Loader2 className="animate-spin" />
               ) : (
-                `Submit ${itemType === 'lost' ? 'Lost' : 'Found'} Item Report`
+                item ? 'Update Report' : `Submit ${itemType === 'lost' ? 'Lost' : 'Found'} Item Report`
               )}
             </Button>
           </form>

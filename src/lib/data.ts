@@ -54,7 +54,7 @@ export const items: Item[] = [
     imageHint: getImage('backpack-1').imageHint,
     location: 'Main Auditorium',
     reportedAt: '2024-07-27T18:00:00Z',
-    reportedBy: 'user-1',
+    reportedBy: 'user-2',
     status: 'open',
   },
   {
@@ -93,7 +93,7 @@ export const items: Item[] = [
     imageHint: getImage('headphones-1').imageHint,
     location: 'Gym',
     reportedAt: '2024-07-29T14:00:00Z',
-    reportedBy: 'user-1',
+    reportedBy: 'user-2',
     status: 'open',
   },
 ];

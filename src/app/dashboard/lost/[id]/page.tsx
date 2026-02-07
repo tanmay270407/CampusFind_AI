@@ -1,23 +1,51 @@
+'use client';
+
 import Image from 'next/image';
+import Link from 'next/link';
 import { items } from '@/lib/data';
 import type { Item } from '@/lib/types';
-import { notFound } from 'next/navigation';
+import { notFound, useRouter } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { MapPin, Clock, Tag, Search, Edit, Trash2 } from 'lucide-react';
 import { format } from 'date-fns';
 import { Button } from '@/components/ui/button';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog"
+import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/hooks/use-auth';
 
 export default function LostItemDetailsPage({ params }: { params: { id: string } }) {
+  const { toast } = useToast();
+  const router = useRouter();
+  const { user } = useAuth();
+  
   const item: Item | undefined = items.find(i => i.id === params.id && i.type === 'lost');
   
   if (!item) {
     notFound();
   }
 
-  // In a real app, you'd check if the current user owns this report.
-  // const { user } = useAuth();
-  // const isOwner = user?.id === item.reportedBy;
+  const isOwner = user?.id === item.reportedBy;
+
+  const handleDelete = () => {
+    // In a real app, this would be an API call.
+    // We'll simulate it and redirect.
+    toast({
+        title: "Report Deleted",
+        description: `The report for "${item.name}" has been deleted.`,
+    });
+    router.push('/dashboard/my-items');
+  }
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
@@ -71,11 +99,34 @@ export default function LostItemDetailsPage({ params }: { params: { id: string }
             </div>
           </div>
         </CardContent>
-        {/* We'd only show this if the current user is the owner of the report */}
-        <CardFooter className="flex justify-end gap-2 border-t pt-6">
-            <Button variant="outline"><Edit className="mr-2" /> Edit Report</Button>
-            <Button variant="destructive"><Trash2 className="mr-2" /> Delete Report</Button>
-        </CardFooter>
+        {isOwner && (
+            <CardFooter className="flex justify-end gap-2 border-t pt-6">
+                <Button variant="outline" asChild>
+                  <Link href={`/dashboard/lost/${item.id}/edit`}>
+                    <Edit className="mr-2" /> Edit Report
+                  </Link>
+                </Button>
+                <AlertDialog>
+                  <AlertDialogTrigger asChild>
+                    <Button variant="destructive"><Trash2 className="mr-2" /> Delete Report</Button>
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                      <AlertDialogDescription>
+                        This action cannot be undone. This will permanently delete your report for &quot;{item.name}&quot;.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Cancel</AlertDialogCancel>
+                      <AlertDialogAction onClick={handleDelete}>
+                        Yes, delete it
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
+            </CardFooter>
+        )}
       </Card>
     </div>
   );
