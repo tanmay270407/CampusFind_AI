@@ -1,11 +1,14 @@
+'use client';
+
 import { Button } from '@/components/ui/button';
 import { ItemCard } from '@/components/dashboard/item-card';
-import { items } from '@/lib/data';
+import { useItems } from '@/hooks/use-items';
 import type { Item } from '@/lib/types';
 import { FilePlus, Search } from 'lucide-react';
 import Link from 'next/link';
 
 export default function DashboardPage() {
+  const { items } = useItems();
   const foundItems = items.filter((item) => item.type === 'found' && item.status === 'open').slice(0, 8);
 
   return (

@@ -29,6 +29,8 @@ import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { Card, CardContent } from '@/components/ui/card';
 import type { Item } from '@/lib/types';
+import { useAuth } from '@/hooks/use-auth';
+import { useItems } from '@/hooks/use-items';
 
 type ReportItemFormProps = {
   itemType: 'lost' | 'found';
@@ -42,12 +44,15 @@ export function ReportItemForm({ itemType, item }: ReportItemFormProps) {
   const [preview, setPreview] = useState<string | null>(item?.imageUrl || null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  const { user } = useAuth();
+  const { addItem, updateItem } = useItems();
+
   const formSchema = z.object({
     name: z.string().min(1, { message: 'Item name is required.' }),
     description: z.string().min(1, { message: 'Description is required.' }),
     location: z.string().min(1, { message: 'Location is required.' }),
     itemType: z.enum(['Water Bottle', 'ID Card', 'Bag', 'Book', 'Gadget', 'Other']),
-    photo: z.any().refine((files) => item || (files && files.length > 0), {
+    photo: z.any().refine(() => item || preview, {
         message: 'Photo is required.',
     }),
   });
@@ -69,9 +74,9 @@ export function ReportItemForm({ itemType, item }: ReportItemFormProps) {
       const reader = new FileReader();
       reader.onloadend = () => {
         setPreview(reader.result as string);
+        form.setValue('photo', reader.result as string);
       };
       reader.readAsDataURL(file);
-      form.setValue('photo', event.target.files);
     }
   };
 
@@ -84,19 +89,44 @@ export function ReportItemForm({ itemType, item }: ReportItemFormProps) {
   };
 
   function onSubmit(values: z.infer<typeof formSchema>) {
+    if (!user) {
+        toast({
+            variant: 'destructive',
+            title: 'Authentication Error',
+            description: 'You must be logged in to report an item.',
+        });
+        return;
+    }
+    
     setIsLoading(true);
-    console.log({ ...values, type: itemType, id: item?.id });
-    // Simulate API call to report/update item
-    setTimeout(() => {
-      setIsLoading(false);
-      toast({
-        title: item ? 'Report Updated' : `Item Reported as ${itemType}`,
-        description: item ? 'Your report has been successfully updated.' : "Thank you! Your report has been submitted.",
-      });
-      // Redirect to the item details page if editing, otherwise to my-items page
-      router.push(item ? `/dashboard/${itemType}/${item.id}` : '/dashboard/my-items');
-      router.refresh(); // Refresh to show new/updated data
-    }, 1500);
+
+    const imageUrl = preview || 'https://placehold.co/600x400';
+
+    if (item) {
+        // Update existing item
+        const updatedItemData: Item = {
+            ...item,
+            ...values,
+            imageUrl,
+            imageHint: item.imageHint,
+        };
+        updateItem(updatedItemData);
+    } else {
+        // Create new item
+        addItem({
+            ...values,
+            type: itemType,
+            reportedBy: user.id,
+            imageUrl,
+        });
+    }
+
+    setIsLoading(false);
+    toast({
+      title: item ? 'Report Updated' : `Item Reported as ${itemType}`,
+      description: item ? 'Your report has been successfully updated.' : "Thank you! Your report has been submitted.",
+    });
+    router.push(item ? `/dashboard/${itemType}/${item.id}` : '/dashboard/my-items');
   }
 
   return (

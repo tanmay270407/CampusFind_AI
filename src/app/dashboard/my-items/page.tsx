@@ -1,13 +1,14 @@
 'use client';
 
 import { useAuth } from '@/hooks/use-auth';
-import { items } from '@/lib/data';
+import { useItems } from '@/hooks/use-items';
 import { ItemCard } from '@/components/dashboard/item-card';
 import type { Item } from '@/lib/types';
 import { SquareStack } from 'lucide-react';
 
 export default function MyItemsPage() {
     const { user } = useAuth();
+    const { items } = useItems();
 
     if (!user) {
         return null; // Or a loading state

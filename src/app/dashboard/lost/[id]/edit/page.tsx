@@ -1,12 +1,14 @@
+'use client';
 import { ReportItemForm } from '@/components/dashboard/report-item-form';
-import { items } from '@/lib/data';
+import { useItems } from '@/hooks/use-items';
 import type { Item } from '@/lib/types';
 import { notFound } from 'next/navigation';
 
 export default function EditLostItemPage({ params }: { params: { id: string } }) {
-    const item: Item | undefined = items.find(i => i.id === params.id && i.type === 'lost');
+    const { getItem } = useItems();
+    const item: Item | undefined = getItem(params.id);
 
-    if (!item) {
+    if (!item || item.type !== 'lost') {
         notFound();
     }
     

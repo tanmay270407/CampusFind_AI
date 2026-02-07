@@ -1,4 +1,5 @@
-import { items } from '@/lib/data';
+'use client';
+import { useItems } from '@/hooks/use-items';
 import type { Item } from '@/lib/types';
 import { notFound } from 'next/navigation';
 import Image from 'next/image';
@@ -6,9 +7,10 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { ClaimItemForm } from '@/components/dashboard/claim-item-form';
 
 export default function ClaimItemPage({ params }: { params: { id: string } }) {
-  const item: Item | undefined = items.find(i => i.id === params.id && i.type === 'found');
+  const { getItem } = useItems();
+  const item: Item | undefined = getItem(params.id);
 
-  if (!item) {
+  if (!item || item.type !== 'found') {
     notFound();
   }
   

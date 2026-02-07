@@ -1,5 +1,7 @@
+'use client';
+
 import Image from 'next/image';
-import { items, users } from '@/lib/data';
+import { users } from '@/lib/data';
 import type { Item, User } from '@/lib/types';
 import { notFound } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -8,11 +10,13 @@ import { Button } from '@/components/ui/button';
 import { MapPin, Clock, User as UserIcon, Tag } from 'lucide-react';
 import { format } from 'date-fns';
 import Link from 'next/link';
+import { useItems } from '@/hooks/use-items';
 
 export default function FoundItemDetailsPage({ params }: { params: { id: string } }) {
-  const item: Item | undefined = items.find(i => i.id === params.id && i.type === 'found');
+  const { getItem } = useItems();
+  const item: Item | undefined = getItem(params.id);
   
-  if (!item) {
+  if (!item || item.type !== 'found') {
     notFound();
   }
   

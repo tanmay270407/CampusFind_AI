@@ -1,5 +1,6 @@
 'use client';
-import { claims, items, users } from '@/lib/data';
+import { claims, users } from '@/lib/data';
+import { useItems } from '@/hooks/use-items';
 import type { Claim } from '@/lib/types';
 import { useAuth } from '@/hooks/use-auth';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
@@ -14,6 +15,7 @@ import { useToast } from '@/hooks/use-toast';
 // Component to render a single claim for an admin to review
 function ClaimReviewCard({ claim }: { claim: Claim }) {
     const { toast } = useToast();
+    const { items } = useItems();
     const claimant = users.find(u => u.id === claim.claimantId);
     const foundItem = items.find(i => i.id === claim.foundItemId);
 

@@ -2,7 +2,6 @@
 
 import Image from 'next/image';
 import Link from 'next/link';
-import { items } from '@/lib/data';
 import type { Item } from '@/lib/types';
 import { notFound, useRouter } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
@@ -23,23 +22,24 @@ import {
 } from "@/components/ui/alert-dialog"
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/use-auth';
+import { useItems } from '@/hooks/use-items';
 
 export default function LostItemDetailsPage({ params }: { params: { id: string } }) {
   const { toast } = useToast();
   const router = useRouter();
   const { user } = useAuth();
+  const { getItem, deleteItem } = useItems();
   
-  const item: Item | undefined = items.find(i => i.id === params.id && i.type === 'lost');
+  const item: Item | undefined = getItem(params.id);
   
-  if (!item) {
+  if (!item || item.type !== 'lost') {
     notFound();
   }
 
   const isOwner = user?.id === item.reportedBy;
 
   const handleDelete = () => {
-    // In a real app, this would be an API call.
-    // We'll simulate it and redirect.
+    deleteItem(item.id);
     toast({
         title: "Report Deleted",
         description: `The report for "${item.name}" has been deleted.`,
