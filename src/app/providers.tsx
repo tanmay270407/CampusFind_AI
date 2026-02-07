@@ -5,11 +5,12 @@ import React, { createContext, useState, useMemo, useEffect, useCallback } from 
 import { users, items as initialItems } from '@/lib/data';
 
 // --- Auth Context ---
-interface AuthContextType {
+export interface AuthContextType {
   user: User | null;
   login: (email: string) => boolean;
   logout: () => void;
   isLoading: boolean;
+  updateUser: (data: Partial<Pick<User, 'name' | 'avatarUrl' | 'avatarHint'>>) => void;
 }
 
 export const AuthContext = createContext<AuthContextType | null>(null);
@@ -61,12 +62,22 @@ export function AppProviders({ children }: { children: React.ReactNode }) {
     localStorage.removeItem('campusfind-items'); // Clear items on logout
   };
 
+  const updateUser = useCallback((data: Partial<Pick<User, 'name' | 'avatarUrl' | 'avatarHint'>>) => {
+      setUser(currentUser => {
+          if (!currentUser) return null;
+          const updatedUser = { ...currentUser, ...data };
+          localStorage.setItem('campusfind-user', JSON.stringify(updatedUser));
+          return updatedUser;
+      });
+  }, []);
+
   const authContextValue = useMemo(() => ({
     user,
     login,
     logout,
-    isLoading
-  }), [user, isLoading]);
+    isLoading,
+    updateUser
+  }), [user, isLoading, updateUser]);
 
   // --- Items State ---
   const [items, setItems] = useState<Item[]>(initialItems);

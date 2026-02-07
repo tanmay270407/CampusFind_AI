@@ -70,10 +70,12 @@ export function DashboardSidebar() {
       <SidebarFooter className="p-2">
         <SidebarMenu>
             <SidebarMenuItem>
-                <SidebarMenuButton tooltip={{ children: 'Settings', side: 'right' }}>
-                    <Settings />
-                    <span>Settings</span>
-                </SidebarMenuButton>
+                <Link href="/dashboard/profile" passHref>
+                    <SidebarMenuButton tooltip={{ children: 'Settings', side: 'right' }}>
+                        <Settings />
+                        <span>Settings</span>
+                    </SidebarMenuButton>
+                </Link>
             </SidebarMenuItem>
             <SidebarMenuItem>
                 <SidebarMenuButton onClick={handleLogout} tooltip={{ children: 'Log Out', side: 'right' }}>
