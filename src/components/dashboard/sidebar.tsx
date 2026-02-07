@@ -16,7 +16,7 @@ import Link from 'next/link';
 
 const menuItems = [
     { href: '/dashboard', label: 'Dashboard', icon: Home },
-    { href: '/dashboard/my-items', label: 'My Items', icon: SquareStack },
+    { href: '/dashboard/my-items', label: 'My Reported Items', icon: SquareStack },
     { href: '/dashboard/lost/new', label: 'Report Lost', icon: Search },
     { href: '/dashboard/found/new', label: 'Report Found', icon: FilePlus, roles: ['staff', 'admin'] },
     { href: '/dashboard/notifications', label: 'Notifications', icon: Bell },

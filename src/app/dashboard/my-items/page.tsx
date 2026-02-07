@@ -35,7 +35,7 @@ export default function MyItemsPage() {
                 <div className="space-y-8">
                     {lostItems.length > 0 && (
                         <div className="space-y-4">
-                            <h2 className="text-xl font-semibold">My Lost Items ({lostItems.length})</h2>
+                            <h2 className="text-xl font-semibold">My Reported Lost Items ({lostItems.length})</h2>
                             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
                                 {lostItems.map((item: Item) => (
                                     <ItemCard key={item.id} item={item} />
@@ -46,7 +46,7 @@ export default function MyItemsPage() {
                     
                     {user.role !== 'student' && foundItems.length > 0 && (
                         <div className="space-y-4">
-                            <h2 className="text-xl font-semibold">My Found Items ({foundItems.length})</h2>
+                            <h2 className="text-xl font-semibold">My Reported Found Items ({foundItems.length})</h2>
                              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
                                 {foundItems.map((item: Item) => (
                                     <ItemCard key={item.id} item={item} />
