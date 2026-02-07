@@ -26,7 +26,7 @@ function ClaimReviewCard({ claim, approveClaim, rejectClaim }: { claim: Claim, a
         approveClaim(claim.id);
         toast({
             title: 'Claim Approved',
-            description: `Claim for "${foundItem.name}" by ${claimant.name} has been approved.`,
+            description: `Claim for "${foundItem.name}" by ${claimant.name} has been approved. The user has been notified.`,
         });
     };
 
@@ -35,7 +35,7 @@ function ClaimReviewCard({ claim, approveClaim, rejectClaim }: { claim: Claim, a
         toast({
             variant: 'destructive',
             title: 'Claim Rejected',
-            description: `Claim for "${foundItem.name}" by ${claimant.name} has been rejected.`,
+            description: `Claim for "${foundItem.name}" by ${claimant.name} has been rejected. The user has been notified.`,
         });
     };
 
