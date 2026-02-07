@@ -6,12 +6,16 @@ import { Bell, Check, Mail } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+import { useAuth } from '@/hooks/use-auth';
 
 export default function NotificationsPage() {
     const { notifications, markAsRead, markAllAsRead } = useNotifications();
+    const { user } = useAuth();
     
-    // Sort by date, newest first
-    const userNotifications = [...notifications].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+    // Sort by date, newest first, and filter for the current user
+    const userNotifications = [...notifications]
+        .filter((notif) => user && notif.userId === user.id)
+        .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 
     return (
         <div className="space-y-6 max-w-3xl mx-auto">

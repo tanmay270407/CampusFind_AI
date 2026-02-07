@@ -76,9 +76,6 @@ export function AppProviders({ children }: { children: React.ReactNode }) {
   const logout = () => {
     setUser(null);
     localStorage.removeItem('campusfind-user');
-    localStorage.removeItem('campusfind-items-v2');
-    localStorage.removeItem('campusfind-notifications-v2');
-    localStorage.removeItem('campusfind-claims-v2');
   };
 
   const updateUser = useCallback((data: Partial<Pick<User, 'name' | 'avatarUrl' | 'avatarHint'>>) => {
@@ -102,7 +99,7 @@ export function AppProviders({ children }: { children: React.ReactNode }) {
   const [items, setItems] = useState<Item[]>([]);
 
   useEffect(() => {
-    if(!isLoading && user) {
+    if(!isLoading) {
         try {
           const storedItems = localStorage.getItem('campusfind-items-v2');
           if (storedItems) {
@@ -116,48 +113,41 @@ export function AppProviders({ children }: { children: React.ReactNode }) {
           setItems(initialItems);
           localStorage.setItem('campusfind-items-v2', JSON.stringify(initialItems));
         }
-    } else if(!isLoading && !user) {
-        setItems(initialItems);
     }
-  }, [isLoading, user]);
+  }, [isLoading]);
 
   useEffect(() => {
-      if(!isLoading && user) {
+      if(!isLoading) {
         localStorage.setItem('campusfind-items-v2', JSON.stringify(items));
       }
-  }, [items, isLoading, user]);
+  }, [items, isLoading]);
   
     // --- Notifications State ---
   const [notifications, setNotifications] = useState<Notification[]>([]);
   
   useEffect(() => {
-    if(!isLoading && user) {
+    if(!isLoading) {
         try {
           const storedNotifications = localStorage.getItem('campusfind-notifications-v2');
           if (storedNotifications) {
             setNotifications(JSON.parse(storedNotifications));
           } else {
-            const userNotifications = initialNotifications.filter(n => n.userId === user.id);
-            localStorage.setItem('campusfind-notifications-v2', JSON.stringify(userNotifications));
-            setNotifications(userNotifications);
+            localStorage.setItem('campusfind-notifications-v2', JSON.stringify(initialNotifications));
+            setNotifications(initialNotifications);
           }
         } catch (error) {
           console.error('Failed to parse notifications from localStorage', error);
-          const userNotifications = initialNotifications.filter(n => n.userId === user.id);
-          setNotifications(userNotifications);
-          localStorage.setItem('campusfind-notifications-v2', JSON.stringify(userNotifications));
+          setNotifications(initialNotifications);
+          localStorage.setItem('campusfind-notifications-v2', JSON.stringify(initialNotifications));
         }
-    } else if (!isLoading && !user) {
-        setNotifications([]);
-        localStorage.removeItem('campusfind-notifications-v2');
     }
-  }, [isLoading, user]);
+  }, [isLoading]);
 
   useEffect(() => {
-      if(!isLoading && user) {
+      if(!isLoading) {
         localStorage.setItem('campusfind-notifications-v2', JSON.stringify(notifications));
       }
-  }, [notifications, isLoading, user]);
+  }, [notifications, isLoading]);
 
   const addNotification = useCallback((notificationData: Omit<Notification, 'id' | 'createdAt' | 'read'>) => {
     const newNotification: Notification = {
@@ -174,10 +164,14 @@ export function AppProviders({ children }: { children: React.ReactNode }) {
   }, []);
 
   const markAllAsRead = useCallback(() => {
-    setNotifications(prev => prev.map(n => ({ ...n, read: true })));
-  }, []);
+    if (!user) return;
+    setNotifications(prev => prev.map(n => (n.userId === user.id ? { ...n, read: true } : n)));
+  }, [user]);
 
-  const unreadCount = useMemo(() => notifications.filter(n => !n.read).length, [notifications]);
+  const unreadCount = useMemo(() => {
+    if (!user) return 0;
+    return notifications.filter(n => n.userId === user.id && !n.read).length;
+  }, [notifications, user]);
 
   const notificationsContextValue = useMemo(() => ({
     notifications,
@@ -246,7 +240,7 @@ export function AppProviders({ children }: { children: React.ReactNode }) {
   const [claims, setClaims] = useState<Claim[]>([]);
 
   useEffect(() => {
-    if (!isLoading && user) {
+    if (!isLoading) {
       try {
         const storedClaims = localStorage.getItem('campusfind-claims-v2');
         if (storedClaims) {
@@ -260,16 +254,14 @@ export function AppProviders({ children }: { children: React.ReactNode }) {
         setClaims(initialClaims);
         localStorage.setItem('campusfind-claims-v2', JSON.stringify(initialClaims));
       }
-    } else if (!isLoading && !user) {
-      setClaims(initialClaims);
     }
-  }, [isLoading, user]);
+  }, [isLoading]);
 
   useEffect(() => {
-    if (!isLoading && user) {
+    if (!isLoading) {
       localStorage.setItem('campusfind-claims-v2', JSON.stringify(claims));
     }
-  }, [claims, isLoading, user]);
+  }, [claims, isLoading]);
 
   const addClaim = useCallback((claimData: Omit<Claim, 'id' | 'claimDate'>) => {
     const newClaim: Claim = {
