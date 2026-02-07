@@ -1,5 +1,5 @@
 'use client';
-import { claims, users } from '@/lib/data';
+import { users } from '@/lib/data';
 import { useItems } from '@/hooks/use-items';
 import type { Claim } from '@/lib/types';
 import { useAuth } from '@/hooks/use-auth';
@@ -11,9 +11,10 @@ import { format } from 'date-fns';
 import Image from 'next/image';
 import { AlertCircle, CheckCircle, XCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { useClaims } from '@/hooks/use-claims';
 
 // Component to render a single claim for an admin to review
-function ClaimReviewCard({ claim }: { claim: Claim }) {
+function ClaimReviewCard({ claim, approveClaim, rejectClaim }: { claim: Claim, approveClaim: (id: string) => void, rejectClaim: (id: string) => void }) {
     const { toast } = useToast();
     const { items } = useItems();
     const claimant = users.find(u => u.id === claim.claimantId);
@@ -22,18 +23,18 @@ function ClaimReviewCard({ claim }: { claim: Claim }) {
     if (!claimant || !foundItem) return null;
 
     const handleApprove = () => {
-        // In a real app, this would update the database and trigger notifications
+        approveClaim(claim.id);
         toast({
-            title: 'Claim Approved (Simulated)',
+            title: 'Claim Approved',
             description: `Claim for "${foundItem.name}" by ${claimant.name} has been approved.`,
         });
     };
 
     const handleReject = () => {
-        // In a real app, this would update the database
+        rejectClaim(claim.id);
         toast({
             variant: 'destructive',
-            title: 'Claim Rejected (Simulated)',
+            title: 'Claim Rejected',
             description: `Claim for "${foundItem.name}" by ${claimant.name} has been rejected.`,
         });
     };
@@ -104,6 +105,7 @@ function ClaimReviewCard({ claim }: { claim: Claim }) {
 
 export default function ClaimsPage() {
     const { user } = useAuth();
+    const { claims, approveClaim, rejectClaim } = useClaims();
     
     if (user?.role !== 'admin') {
         return (
@@ -128,7 +130,7 @@ export default function ClaimsPage() {
                 <h2 className="text-xl font-semibold flex items-center gap-2"><AlertCircle className="text-primary"/> Pending Review ({pendingClaims.length})</h2>
                 {pendingClaims.length > 0 ? (
                     <div className="space-y-4">
-                        {pendingClaims.map(claim => <ClaimReviewCard key={claim.id} claim={claim} />)}
+                        {pendingClaims.map(claim => <ClaimReviewCard key={claim.id} claim={claim} approveClaim={approveClaim} rejectClaim={rejectClaim} />)}
                     </div>
                 ) : (
                     <div className="rounded-lg border-2 border-dashed border-muted-foreground/30 p-12 text-center">
@@ -141,7 +143,7 @@ export default function ClaimsPage() {
                 <h2 className="text-xl font-semibold">Resolved Claims ({resolvedClaims.length})</h2>
                  {resolvedClaims.length > 0 ? (
                     <div className="space-y-4">
-                        {resolvedClaims.map(claim => <ClaimReviewCard key={claim.id} claim={claim} />)}
+                        {resolvedClaims.map(claim => <ClaimReviewCard key={claim.id} claim={claim} approveClaim={approveClaim} rejectClaim={rejectClaim} />)}
                     </div>
                 ) : (
                     <div className="rounded-lg border-2 border-dashed border-muted-foreground/30 p-12 text-center">

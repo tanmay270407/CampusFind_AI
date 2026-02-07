@@ -1,8 +1,8 @@
 'use client';
 
-import type { User, Item, Notification } from '@/lib/types';
+import type { User, Item, Notification, Claim } from '@/lib/types';
 import React, { createContext, useState, useMemo, useEffect, useCallback } from 'react';
-import { users, items as initialItems, notifications as initialNotifications } from '@/lib/data';
+import { users, items as initialItems, notifications as initialNotifications, claims as initialClaims } from '@/lib/data';
 import { findSimilarItems } from '@/ai/flows/find-similar-items';
 
 // --- Auth Context ---
@@ -34,6 +34,15 @@ export interface NotificationsContextType {
   unreadCount: number;
 }
 export const NotificationsContext = createContext<NotificationsContextType | null>(null);
+
+// --- Claims Context ---
+export interface ClaimsContextType {
+  claims: Claim[];
+  addClaim: (claim: Omit<Claim, 'id' | 'claimDate'>) => void;
+  approveClaim: (claimId: string) => void;
+  rejectClaim: (claimId: string) => void;
+}
+export const ClaimsContext = createContext<ClaimsContextType | null>(null);
 
 
 export function AppProviders({ children }: { children: React.ReactNode }) {
@@ -69,6 +78,7 @@ export function AppProviders({ children }: { children: React.ReactNode }) {
     localStorage.removeItem('campusfind-user');
     localStorage.removeItem('campusfind-items');
     localStorage.removeItem('campusfind-notifications');
+    localStorage.removeItem('campusfind-claims');
   };
 
   const updateUser = useCallback((data: Partial<Pick<User, 'name' | 'avatarUrl' | 'avatarHint'>>) => {
@@ -232,12 +242,104 @@ export function AppProviders({ children }: { children: React.ReactNode }) {
       getItem,
   }), [items, addItem, updateItem, deleteItem, getItem]);
 
+  // --- Claims State ---
+  const [claims, setClaims] = useState<Claim[]>([]);
+
+  useEffect(() => {
+    if (!isLoading && user) {
+      try {
+        const storedClaims = localStorage.getItem('campusfind-claims');
+        if (storedClaims) {
+          setClaims(JSON.parse(storedClaims));
+        } else {
+          localStorage.setItem('campusfind-claims', JSON.stringify(initialClaims));
+          setClaims(initialClaims);
+        }
+      } catch (error) {
+        console.error('Failed to parse claims from localStorage', error);
+        setClaims(initialClaims);
+        localStorage.setItem('campusfind-claims', JSON.stringify(initialClaims));
+      }
+    } else if (!isLoading && !user) {
+      setClaims(initialClaims);
+    }
+  }, [isLoading, user]);
+
+  useEffect(() => {
+    if (!isLoading && user) {
+      localStorage.setItem('campusfind-claims', JSON.stringify(claims));
+    }
+  }, [claims, isLoading, user]);
+
+  const addClaim = useCallback((claimData: Omit<Claim, 'id' | 'claimDate'>) => {
+    const newClaim: Claim = {
+      ...claimData,
+      id: `claim-${Date.now()}`,
+      claimDate: new Date().toISOString(),
+    };
+    setClaims(prevClaims => [newClaim, ...prevClaims]);
+  }, []);
+
+  const approveClaim = useCallback((claimId: string) => {
+    let approvedClaim: Claim | undefined;
+    const newClaims = claims.map(c => {
+      if (c.id === claimId) {
+        approvedClaim = { ...c, status: 'approved' };
+        return approvedClaim;
+      }
+      return c;
+    });
+    setClaims(newClaims);
+
+    if (approvedClaim) {
+      const foundItem = items.find(i => i.id === approvedClaim!.foundItemId);
+      if(foundItem) {
+        updateItem({ ...foundItem, status: 'claimed' });
+        addNotification({
+          userId: approvedClaim.claimantId,
+          message: `Your claim for "${foundItem.name}" has been approved! You can pick it up from the campus security office.`,
+        });
+      }
+    }
+  }, [claims, items, updateItem, addNotification]);
+
+  const rejectClaim = useCallback((claimId: string) => {
+    let rejectedClaim: Claim | undefined;
+     const newClaims = claims.map(c => {
+      if (c.id === claimId) {
+        rejectedClaim = { ...c, status: 'rejected' };
+        return rejectedClaim;
+      }
+      return c;
+    });
+    setClaims(newClaims);
+
+    if (rejectedClaim) {
+        const foundItem = items.find(i => i.id === rejectedClaim!.foundItemId);
+        if(foundItem) {
+            addNotification({
+                userId: rejectedClaim.claimantId,
+                message: `Unfortunately, your claim for "${foundItem.name}" has been rejected.`,
+            });
+        }
+    }
+  }, [claims, items, addNotification]);
+  
+  const claimsContextValue = useMemo(() => ({
+    claims,
+    addClaim,
+    approveClaim,
+    rejectClaim,
+  }), [claims, addClaim, approveClaim, rejectClaim]);
+
 
   return (
     <AuthContext.Provider value={authContextValue}>
       <ItemsContext.Provider value={itemsContextValue}>
         <NotificationsContext.Provider value={notificationsContextValue}>
+          <ClaimsContext.Provider value={claimsContextValue}>
             {children}
+          </ClaimsContext.Provider>
         </NotificationsContext.Provider>
       </ItemsContext.Provider>
     </AuthContext.Provider>

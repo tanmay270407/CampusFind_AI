@@ -22,7 +22,9 @@ import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { Card, CardContent } from '@/components/ui/card';
 import type { Item } from '@/lib/types';
-// import { generateItemDetailsForClaim } from '@/ai/flows/generate-item-details-for-claim';
+import { generateItemDetailsForClaim } from '@/ai/flows/generate-item-details-for-claim';
+import { useAuth } from '@/hooks/use-auth';
+import { useClaims } from '@/hooks/use-claims';
 
 
 const formSchema = z.object({
@@ -37,6 +39,8 @@ type ClaimItemFormProps = {
 export function ClaimItemForm({ foundItem }: ClaimItemFormProps) {
   const { toast } = useToast();
   const router = useRouter();
+  const { user } = useAuth();
+  const { addClaim } = useClaims();
   const [isLoading, setIsLoading] = useState(false);
   const [preview, setPreview] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -69,48 +73,50 @@ export function ClaimItemForm({ foundItem }: ClaimItemFormProps) {
   };
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
+    if (!user) {
+      toast({
+        variant: 'destructive',
+        title: 'Not Logged In',
+        description: 'You must be logged in to submit a claim.',
+      });
+      return;
+    }
     setIsLoading(true);
 
-    // In a real app, you would call the AI flow here.
-    // For now, we simulate the process.
-    console.log('Claim submitted for item:', foundItem.id);
-    console.log('Claim details:', values);
-    console.log('Photo preview (data URI):', preview);
-    
-    /*
-    // Example of how you might call the AI flow
+    let verificationDetails = "AI verification could not be run for this claim.";
     try {
         const aiResponse = await generateItemDetailsForClaim({
             lostItemDescription: values.description,
-            lostItemPhotoDataUri: preview || '',
+            lostItemPhotoDataUri: preview || '', // AI flow expects a string, even if empty
             foundItemDescription: foundItem.description,
-            foundItemPhotoDataUri: foundItem.imageUrl, // In a real app, this might need to be a data URI too
+            foundItemPhotoDataUri: foundItem.imageUrl,
         });
-        console.log("AI Verification Details:", aiResponse.itemDetails);
-        // You would then save this to the claim record in your database
+        verificationDetails = aiResponse.itemDetails;
     } catch (error) {
         console.error("AI Flow failed:", error);
         toast({
             variant: "destructive",
             title: "AI Verification Failed",
-            description: "We couldn't process the AI verification at this time. Please try again.",
+            description: "We couldn't process the AI verification at this time, but your claim will still be submitted.",
         });
-        setIsLoading(false);
-        return;
     }
-    */
 
+    addClaim({
+      foundItemId: foundItem.id,
+      claimantId: user.id,
+      status: 'pending',
+      claimantDescription: values.description,
+      claimantPhotoUrl: preview || undefined,
+      claimantPhotoHint: preview ? 'user uploaded image' : undefined,
+      verificationDetails,
+    });
 
-    // Simulate API call to submit claim
-    setTimeout(() => {
-      setIsLoading(false);
-      toast({
-        title: "Claim Submitted",
-        description: "Your claim has been submitted for review. You will be notified of the outcome.",
-      });
-      // In a real app, you'd redirect to a page showing the status of their claims
-      router.push('/dashboard/my-items');
-    }, 1500);
+    setIsLoading(false);
+    toast({
+      title: "Claim Submitted",
+      description: "Your claim has been submitted for review. You will be notified of the outcome.",
+    });
+    router.push('/dashboard');
   }
 
   return (
