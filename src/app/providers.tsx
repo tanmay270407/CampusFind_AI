@@ -3,6 +3,7 @@
 import type { User, Item, Notification } from '@/lib/types';
 import React, { createContext, useState, useMemo, useEffect, useCallback } from 'react';
 import { users, items as initialItems, notifications as initialNotifications } from '@/lib/data';
+import { findSimilarItems } from '@/ai/flows/find-similar-items';
 
 // --- Auth Context ---
 export interface AuthContextType {
@@ -115,40 +116,8 @@ export function AppProviders({ children }: { children: React.ReactNode }) {
         localStorage.setItem('campusfind-items', JSON.stringify(items));
       }
   }, [items, isLoading, user]);
-
-  const addItem = useCallback((itemData: Omit<Item, 'id' | 'reportedAt' | 'status' | 'imageHint'> & {imageUrl: string}) => {
-      const newItem: Item = {
-          ...itemData,
-          id: `item-${Date.now()}`,
-          reportedAt: new Date().toISOString(),
-          status: 'open',
-          imageHint: 'user uploaded image'
-      };
-      setItems(prevItems => [newItem, ...prevItems]);
-  }, []);
-
-  const updateItem = useCallback((updatedItem: Item) => {
-      setItems(prevItems => prevItems.map(item => item.id === updatedItem.id ? updatedItem : item));
-  }, []);
-
-  const deleteItem = useCallback((itemId: string) => {
-      setItems(prevItems => prevItems.filter(item => item.id !== itemId));
-  }, []);
-    
-  const getItem = useCallback((id: string) => {
-    return items.find(i => i.id === id);
-  }, [items]);
-
-  const itemsContextValue = useMemo(() => ({
-      items,
-      addItem,
-      updateItem,
-      deleteItem,
-      getItem,
-  }), [items, addItem, updateItem, deleteItem, getItem]);
-
-
-  // --- Notifications State ---
+  
+    // --- Notifications State ---
   const [notifications, setNotifications] = useState<Notification[]>([]);
   
   useEffect(() => {
@@ -207,6 +176,61 @@ export function AppProviders({ children }: { children: React.ReactNode }) {
     markAllAsRead,
     unreadCount,
   }), [notifications, addNotification, markAsRead, markAllAsRead, unreadCount]);
+
+
+  const addItem = useCallback((itemData: Omit<Item, 'id' | 'reportedAt' | 'status' | 'imageHint'> & {imageUrl: string}) => {
+      const newItem: Item = {
+          ...itemData,
+          id: `item-${Date.now()}`,
+          reportedAt: new Date().toISOString(),
+          status: 'open',
+          imageHint: 'user uploaded image'
+      };
+
+      if (newItem.type === 'found') {
+        const lostItems = items.filter(i => i.type === 'lost' && i.status === 'open');
+        lostItems.forEach(async (lostItem) => {
+            try {
+                const results = await findSimilarItems({
+                    photoDataUri: lostItem.imageUrl,
+                    description: lostItem.description,
+                    searchSpace: [newItem]
+                });
+
+                if (results.length > 0 && results[0].similarityScore > 0.7) {
+                    addNotification({
+                        userId: lostItem.reportedBy,
+                        message: `A new potential match for your lost item "${lostItem.name}" has been found!`,
+                    });
+                }
+            } catch (e) {
+                console.error("Background item matching failed:", e);
+            }
+        });
+    }
+
+      setItems(prevItems => [newItem, ...prevItems]);
+  }, [items, addNotification]);
+
+  const updateItem = useCallback((updatedItem: Item) => {
+      setItems(prevItems => prevItems.map(item => item.id === updatedItem.id ? updatedItem : item));
+  }, []);
+
+  const deleteItem = useCallback((itemId: string) => {
+      setItems(prevItems => prevItems.filter(item => item.id !== itemId));
+  }, []);
+    
+  const getItem = useCallback((id: string) => {
+    return items.find(i => i.id === id);
+  }, [items]);
+
+  const itemsContextValue = useMemo(() => ({
+      items,
+      addItem,
+      updateItem,
+      deleteItem,
+      getItem,
+  }), [items, addItem, updateItem, deleteItem, getItem]);
 
 
   return (

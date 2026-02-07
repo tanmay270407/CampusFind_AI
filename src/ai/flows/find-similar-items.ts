@@ -10,7 +10,20 @@
 
 import {ai} from '@/ai/genkit';
 import {z} from 'genkit';
-import { items } from '@/lib/data';
+
+const ItemSchema = z.object({
+    id: z.string(),
+    name: z.string(),
+    type: z.enum(['lost', 'found']),
+    itemType: z.enum(['Water Bottle', 'ID Card', 'Bag', 'Book', 'Gadget', 'Other']),
+    description: z.string(),
+    imageUrl: z.string(),
+    imageHint: z.string(),
+    location: z.string(),
+    reportedAt: z.string(),
+    reportedBy: z.string(),
+    status: z.enum(['open', 'claimed', 'archived']),
+});
 
 const FindSimilarItemsInputSchema = z.object({
   photoDataUri: z
@@ -19,6 +32,7 @@ const FindSimilarItemsInputSchema = z.object({
       "A photo of the item, as a data URI that must include a MIME type and use Base64 encoding. Expected format: 'data:<mimetype>;base64,<encoded_data>'."
     ),
   description: z.string().describe('A detailed description of the item, including color, brand, and any unique features.'),
+  searchSpace: z.array(ItemSchema).describe('The list of items to search for potential matches.'),
 });
 export type FindSimilarItemsInput = z.infer<typeof FindSimilarItemsInputSchema>;
 
@@ -65,7 +79,7 @@ const findSimilarItemsFlow = ai.defineFlow(
     // Simulate a delay to mimic AI processing time.
     await new Promise(resolve => setTimeout(resolve, 1500));
 
-    const foundItems = items.filter(i => i.type === 'found' && i.status === 'open');
+    const foundItems = input.searchSpace.filter(i => i.type === 'found' && i.status === 'open');
 
     // For this demo, we'll just return a couple of found items with a mock similarity score.
     // A real implementation would use the AI's analysis of the input to determine similarity.

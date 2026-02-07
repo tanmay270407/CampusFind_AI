@@ -48,7 +48,7 @@ function MatchCard({ match }: { match: FindSimilarItemsOutput[0] }) {
 
 
 export default function FindMatchesPage({ params }: { params: { id: string } }) {
-  const { getItem } = useItems();
+  const { getItem, items } = useItems();
   const { user } = useAuth();
   const { addNotification } = useNotifications();
   
@@ -69,6 +69,7 @@ export default function FindMatchesPage({ params }: { params: { id: string } }) 
         const results = await findSimilarItems({
           photoDataUri: item.imageUrl,
           description: item.description,
+          searchSpace: items,
         });
 
         setMatches(results);
