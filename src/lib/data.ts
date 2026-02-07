@@ -121,26 +121,4 @@ export const claims: Claim[] = [
     }
 ];
 
-export const notifications: Notification[] = [
-    {
-        id: 'notif-1',
-        userId: 'user-1',
-        message: 'A potential match for your lost Black Jansport Backpack has been found.',
-        createdAt: '2024-07-29T11:50:00Z',
-        read: false,
-    },
-    {
-        id: 'notif-2',
-        userId: 'user-1',
-        message: 'Your claim for the MacBook Pro 14" has been approved!',
-        createdAt: '2024-07-29T15:00:00Z',
-        read: true,
-    },
-    {
-        id: 'notif-3',
-        userId: 'user-1',
-        message: 'Your claim for "MacBook Pro 14\\"" has been approved! You can pick it up from the Student Union front desk.',
-        createdAt: '2024-07-29T16:00:00Z',
-        read: false,
-    }
-];
+export const notifications: Notification[] = [];
