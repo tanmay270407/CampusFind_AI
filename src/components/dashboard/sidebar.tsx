@@ -18,7 +18,7 @@ const menuItems = [
     { href: '/dashboard', label: 'Dashboard', icon: Home },
     { href: '/dashboard/my-items', label: 'My Reported Items', icon: SquareStack },
     { href: '/dashboard/lost/new', label: 'Report Lost', icon: Search },
-    { href: '/dashboard/found/new', label: 'Report Found', icon: FilePlus, roles: ['staff', 'admin'] },
+    { href: '/dashboard/found/new', label: 'Report Found', icon: FilePlus },
     { href: '/dashboard/notifications', label: 'Notifications', icon: Bell },
     { href: '/dashboard/claims', label: 'Manage Claims', icon: ShieldCheck, roles: ['admin'] },
 ];

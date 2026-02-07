@@ -44,7 +44,7 @@ export default function MyItemsPage() {
                         </div>
                     )}
                     
-                    {user.role !== 'student' && foundItems.length > 0 && (
+                    {foundItems.length > 0 && (
                         <div className="space-y-4">
                             <h2 className="text-xl font-semibold">My Reported Found Items ({foundItems.length})</h2>
                              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
